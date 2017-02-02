@@ -21,7 +21,7 @@ labelImg = fp['/segmentation/labelStack/'+str(1).zfill(6)].value
 fig = plt.figure(figsize=(3,3))
 ax = fig.add_axes([0,0,1,1])
 
-for label in [1]:
+for label in [2]:
     bImg = labelImg==label
     bImgBdry = imageProcess.boundary(bImg)
     
