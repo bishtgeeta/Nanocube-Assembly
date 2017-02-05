@@ -229,21 +229,21 @@ if (rank==0):
 #radiusOFgyration=False
 #orientation=True
 
-#for frame in procFrameList[rank]:
-    #labelImg = fp['/segmentation/labelStack/'+str(frame).zfill(zfillVal)].value
-    #gImgRaw = fp['/dataProcessing/gImgRawStack/'+str(frame).zfill(zfillVal)].value
-    #outFile.write("%f " %(1.0*frame/fps))
-    #for particle in particleList:
-        #bImg = labelImg==particle
-        #if (bImg.max() == True):
-            #label, numLabel, dictionary = imageProcess.regionProps(bImg, gImgRaw, structure=structure, centroid=centroid, area=area, perimeter=perimeter,orientation=orientation)
-            #outFile.write("%f %f %f %f %f " %(dictionary['centroid'][0][1]*pixInNM, (row-dictionary['centroid'][0][0])*pixInNM, dictionary['area'][0]*pixInNM*pixInNM, dictionary['perimeter'][0]*pixInNM, dictionary['orientation'][0]))
-        #else:
-            #outFile.write("nan nan nan nan nan ")
-    #outFile.write("\n")
-#outFile.close()
-#fp.flush(), fp.close()
-#comm.Barrier()
+for frame in procFrameList[rank]:
+    labelImg = fp['/segmentation/labelStack/'+str(frame).zfill(zfillVal)].value
+    gImgRaw = fp['/dataProcessing/gImgRawStack/'+str(frame).zfill(zfillVal)].value
+    outFile.write("%f " %(1.0*frame/fps))
+    for particle in particleList:
+        bImg = labelImg==particle
+        if (bImg.max() == True):
+            label, numLabel, dictionary = imageProcess.regionProps(bImg, gImgRaw, structure=structure, centroid=centroid, area=area, perimeter=perimeter,orientation=orientation)
+            outFile.write("%f %f %f %f %f " %(dictionary['centroid'][0][1]*pixInNM, (row-dictionary['centroid'][0][0])*pixInNM, dictionary['area'][0]*pixInNM*pixInNM, dictionary['perimeter'][0]*pixInNM, dictionary['orientation'][0]))
+        else:
+            outFile.write("nan nan nan nan nan ")
+    outFile.write("\n")
+outFile.close()
+fp.flush(), fp.close()
+comm.Barrier()
 
 #if (rank==0):
     #for r in range(size):
@@ -261,16 +261,28 @@ if (rank==0):
 # FINDING OUT RELATIVE DISTANCE BETWEEN PARTICLES
 #######################################################################
 
-#if (rank==0):
-    #print "Finding the relative distance"
-    #txtfile = numpy.loadtxt(outputDir+'/imgDataNM.dat')
-    #time = txtfile[:,0]
-    #x1 = txtfile[:,1]
-    #y1 = txtfile[:,2]
-    #x2 = txtfile[:,6]
-    #y2 = txtfile[:,7]
-    #relative_distance = numpy.sqrt( (x2 - x1)**2 + (y2 - y1)**2 )
-    #numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance]),fmt='%.6f')
+if (rank==0):
+    print "Finding the relative distance"
+    txtfile = numpy.loadtxt(outputDir+'/imgDataNM.dat')
+    time = txtfile[:,0]
+    x1 = txtfile[:,1]
+    y1 = txtfile[:,2]
+    x2 = txtfile[:,6]
+    y2 = txtfile[:,7]
+    relative_distance = numpy.sqrt( (x2 - x1)**2 + (y2 - y1)**2 )
+    slopes1 = np.empty(x1.shape)
+    slopes1[:] = np.NaN
+    slopes2 = np.empty(x1.shape)
+    slopes2[:] = np.NaN
+    for frame in range(numFrames):
+		labelImg = fp['/segmentation/labelStack/'+str(frame).zfill(zfillVal)].value
+		helper = imageProcess.FindAngleHelper(labelImg)
+		helper.connect()
+		plt.show()
+		slopes1[frame] = helper.first_slope
+		slopes2[frame] = helper.second_slope
+	slope_difference = slopes1 - slopes2	
+    numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, slopes1, slopes2, slope_difference]),fmt='%.6f')
     
 #######################################################################
 # Plotting Graph Between Time and Relative Distance

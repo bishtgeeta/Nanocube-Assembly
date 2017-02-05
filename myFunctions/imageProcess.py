@@ -4,6 +4,60 @@ from scipy import ndimage
 from skimage.morphology import disk, white_tophat
 from mahotas.polygon import fill_convexhull
 from skimage import measure
+import matplotlib.pyplot as plt
+
+class FindAngleHelper(object):
+    """A helper class for finding slopes of two particles in an image
+    It plots the input data and waits for the user to draw two lines
+    in the image, the slopes of these two lines is saved in attributes
+    `first_slope` and `second_slope` of the instance of the class
+    
+    Parameters: data: numpy array
+    """
+    def __init__(self, data, line_length=None):
+        self.press = False
+        self.first_line = None
+        if line_length is None:
+            self.line_length = data.shape[0]*1.0 / 3
+        
+        self.figure = plt.figure()
+        plt.imshow(data, cmap='gray', origin='lower')
+        plt.xlim([0, data.shape[1]])
+        plt.ylim([0, data.shape[0]])
+        self.line,  = plt.plot([1,1], [1,1])
+        
+ 
+    def on_click(self, event):
+        self.press = True
+        self.x0, self.y0 = event.xdata, event.ydata
+        self.x1, self.y1 = event.xdata, event.ydata
+        
+    def on_release(self, event):
+        self.press = False
+        if (self.x0 - self.x1)**2 + (self.y0 - self.y1)**2  > self.line_length**2:
+            plt.plot([self.x0, self.x1], [self.y0, self.y1])
+            if self.first_line is None:
+                self.first_line = [self.x0, self.x1, self.y0, self.y1]
+                self.first_slope = self._get_slope(self.first_line)
+            else:
+                self.second_line = [self.x0, self.x1, self.y0, self.y1]
+                self.second_slope = self._get_slope(self.second_line)
+        
+    def on_move(self, event):
+        if self.press:
+            self.x1, self.y1 = event.xdata, event.ydata
+            self.line.set_xdata([self.x0, self.x1])
+            self.line.set_ydata([self.y0, self.y1])
+            self.line.figure.canvas.draw()
+
+    def connect(self):
+        self.cidpress = self.figure.canvas.mpl_connect('button_press_event', self.on_click)
+        self.cidrelease = self.figure.canvas.mpl_connect('button_release_event', self.on_release)
+        self.cidmotion = self.figure.canvas.mpl_connect('motion_notify_event', self.on_move)
+
+    def _get_slope(self, line):
+        tan_theta = (line[3] - line[2]) * 1.0 / (line[1] - line[0])
+        return numpy.rad2deg(numpy.arctan(tan_theta))
 
 #######################################################################
 # NORMALIZE AN 8 BIT GRAYSCALE IMAGE
