@@ -229,21 +229,21 @@ if (rank==0):
 #radiusOFgyration=False
 #orientation=True
 
-for frame in procFrameList[rank]:
-    labelImg = fp['/segmentation/labelStack/'+str(frame).zfill(zfillVal)].value
-    gImgRaw = fp['/dataProcessing/gImgRawStack/'+str(frame).zfill(zfillVal)].value
-    outFile.write("%f " %(1.0*frame/fps))
-    for particle in particleList:
-        bImg = labelImg==particle
-        if (bImg.max() == True):
-            label, numLabel, dictionary = imageProcess.regionProps(bImg, gImgRaw, structure=structure, centroid=centroid, area=area, perimeter=perimeter,orientation=orientation)
-            outFile.write("%f %f %f %f %f " %(dictionary['centroid'][0][1]*pixInNM, (row-dictionary['centroid'][0][0])*pixInNM, dictionary['area'][0]*pixInNM*pixInNM, dictionary['perimeter'][0]*pixInNM, dictionary['orientation'][0]))
-        else:
-            outFile.write("nan nan nan nan nan ")
-    outFile.write("\n")
-outFile.close()
-fp.flush(), fp.close()
-comm.Barrier()
+#for frame in procFrameList[rank]:
+    #labelImg = fp['/segmentation/labelStack/'+str(frame).zfill(zfillVal)].value
+    #gImgRaw = fp['/dataProcessing/gImgRawStack/'+str(frame).zfill(zfillVal)].value
+    #outFile.write("%f " %(1.0*frame/fps))
+    #for particle in particleList:
+        #bImg = labelImg==particle
+        #if (bImg.max() == True):
+            #label, numLabel, dictionary = imageProcess.regionProps(bImg, gImgRaw, structure=structure, centroid=centroid, area=area, perimeter=perimeter,orientation=orientation)
+            #outFile.write("%f %f %f %f %f " %(dictionary['centroid'][0][1]*pixInNM, (row-dictionary['centroid'][0][0])*pixInNM, dictionary['area'][0]*pixInNM*pixInNM, dictionary['perimeter'][0]*pixInNM, dictionary['orientation'][0]))
+        #else:
+            #outFile.write("nan nan nan nan nan ")
+    #outFile.write("\n")
+#outFile.close()
+#fp.flush(), fp.close()
+#comm.Barrier()
 
 #if (rank==0):
     #for r in range(size):
@@ -270,39 +270,40 @@ if (rank==0):
     x2 = txtfile[:,6]
     y2 = txtfile[:,7]
     relative_distance = numpy.sqrt( (x2 - x1)**2 + (y2 - y1)**2 )
-    slopes1 = np.empty(x1.shape)
-    slopes1[:] = np.NaN
-    slopes2 = np.empty(x1.shape)
-    slopes2[:] = np.NaN
-    for frame in range(numFrames):
+    slopes1 = numpy.empty(x1.shape)
+    slopes1[:] = numpy.NaN
+    slopes2 = numpy.empty(x1.shape)
+    slopes2[:] = numpy.NaN
+    fp = h5py.File(outputFile, 'r')
+    for frame in range(1,11):
 		labelImg = fp['/segmentation/labelStack/'+str(frame).zfill(zfillVal)].value
 		helper = imageProcess.FindAngleHelper(labelImg)
 		helper.connect()
 		plt.show()
-		slopes1[frame] = helper.first_slope
-		slopes2[frame] = helper.second_slope
-	slope_difference = slopes1 - slopes2	
-    numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, slopes1, slopes2, slope_difference]),fmt='%.6f')
+		slopes1[frame-1] = helper.first_slope
+		slopes2[frame-1] = helper.second_slope
+    slope_difference = slopes1 - slopes2	
+    numpy.savetxt(outputDir+'/relative_distance2.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, slopes1, slopes2, slope_difference]),fmt='%.6f')
     
 #######################################################################
 # Plotting Graph Between Time and Relative Distance
 #######################################################################
 
-def remove_nan_for_plot(x,y):
-    not_nan = ~numpy.isnan(y)
-    return x[not_nan], y[not_nan]
+#def remove_nan_for_plot(x,y):
+    #not_nan = ~numpy.isnan(y)
+    #return x[not_nan], y[not_nan]
 
-if (rank==0):
-    txtfile = numpy.loadtxt(outputDir+'/relative_distance.dat')
-    time = txtfile[:,0]
-    relative_distance = txtfile[:,5]
-    time, relative_distance = remove_nan_for_plot(time, relative_distance)
-    plt.figure(figsize=[6,3.5])
-    plt.plot(time, relative_distance, '-o', color='steelblue', lw=2, mfc='none', mec='orangered', ms=4)
-    plt.xlabel('time (seconds)')
-    plt.ylabel('relative distance (nm)')
-    plt.xlim([-0.5, 5.5])
-    plt.ylim([50, 95])
-    plt.tight_layout()
-    plt.savefig('nanocube_relative_diatance.png', dpi=300)
-    plt.show()
+#if (rank==0):
+    #txtfile = numpy.loadtxt(outputDir+'/relative_distance.dat')
+    #time = txtfile[:,0]
+    #relative_distance = txtfile[:,5]
+    #time, relative_distance = remove_nan_for_plot(time, relative_distance)
+    #plt.figure(figsize=[6,3.5])
+    #plt.plot(time, relative_distance, '-o', color='steelblue', lw=2, mfc='none', mec='orangered', ms=4)
+    #plt.xlabel('time (seconds)')
+    #plt.ylabel('relative distance (nm)')
+    #plt.xlim([-0.5, 5.5])
+    #plt.ylim([50, 95])
+    #plt.tight_layout()
+    #plt.savefig('nanocube_relative_diatance.png', dpi=300)
+    #plt.show()
