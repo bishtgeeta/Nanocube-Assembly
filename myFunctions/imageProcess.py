@@ -5,6 +5,8 @@ from skimage.morphology import disk, white_tophat
 from mahotas.polygon import fill_convexhull
 from skimage import measure
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Button
+import time
 
 class FindAngleHelper(object):
     """A helper class for finding slopes of two particles in an image
@@ -16,15 +18,34 @@ class FindAngleHelper(object):
     """
     def __init__(self, data, line_length=None):
         self.press = False
-        self.first_line = None
+        self.data = data
         if line_length is None:
             self.line_length = data.shape[0]*1.0 / 3
         
+        
+        self.first_line = None
+        self.first_slope = numpy.NaN
+        self.second_slope = numpy.NaN
+        
         self.figure = plt.figure()
-        plt.imshow(data, cmap='gray', origin='lower')
-        plt.xlim([0, data.shape[1]])
-        plt.ylim([0, data.shape[0]])
-        self.line,  = plt.plot([1,1], [1,1])
+        self.ax1 = plt.subplot2grid((5,2), (0,0), colspan=2, rowspan=4)
+        self.ax1.imshow(self.data, cmap='gray', origin='lower')
+        self.ax1.set_xlim([0, data.shape[1]])
+        self.ax1.set_ylim([0, data.shape[0]])
+        self.line,  = self.ax1.plot([1,1], [1,1])
+        
+        self.ax2 = plt.subplot2grid((5,2), (4,0))
+        self.ax3 = plt.subplot2grid((5,2), (4,1))
+        self.ax2.set_xticks([])
+        self.ax2.set_yticks([])
+        self.ax3.set_xticks([])
+        self.ax3.set_yticks([])
+        plt.tight_layout()
+        
+        self.button_accept = Button(self.ax2, 'Accept')
+        self.button_accept.on_clicked(self.accept)
+        self.button_retry = Button(self.ax3, 'Try again')
+        self.button_retry.on_clicked(self.retry)
         
  
     def on_click(self, event):
@@ -35,7 +56,7 @@ class FindAngleHelper(object):
     def on_release(self, event):
         self.press = False
         if (self.x0 - self.x1)**2 + (self.y0 - self.y1)**2  > self.line_length**2:
-            plt.plot([self.x0, self.x1], [self.y0, self.y1])
+            self.ax1.plot([self.x0, self.x1], [self.y0, self.y1])
             if self.first_line is None:
                 self.first_line = [self.x0, self.x1, self.y0, self.y1]
                 self.first_slope = self._get_slope(self.first_line)
@@ -58,6 +79,19 @@ class FindAngleHelper(object):
     def _get_slope(self, line):
         tan_theta = (line[3] - line[2]) * 1.0 / (line[1] - line[0])
         return numpy.rad2deg(numpy.arctan(tan_theta))
+        
+    def accept(self, event):
+        time.sleep(0.5)
+        plt.close('all')
+        
+    def retry(self, event):
+        self.first_line = None
+        self.ax1.clear()
+        self.ax1.imshow(self.data, cmap='gray', origin='lower')
+        self.ax1.set_xlim([0, data.shape[1]])
+        self.ax1.set_ylim([0, data.shape[0]])
+        self.line, = self.ax1.plot([1,1], [1,1])
+        
 
 #######################################################################
 # NORMALIZE AN 8 BIT GRAYSCALE IMAGE
