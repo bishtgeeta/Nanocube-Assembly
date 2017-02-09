@@ -17,10 +17,10 @@ import dataViewer
 import misc
 import tracking
 
-inputFile = r'Z:\Geeta-Share\cubes assembly\20160614-001-output\20160614-001.avi'
-outputFile = r'Z:\Geeta-Share\cubes assembly\20160614-001-output\20160614-001.h5'
-inputDir = r'Z:\Geeta-Share\cubes assembly\20160614-001-output'
-outputDir = r'Z:\Geeta-Share\cubes assembly\20160614-001-output\output'
+inputFile = r'Z:\Geeta-Share\cubes assembly\20160614-019-output\20160614-019.avi'
+outputFile = r'Z:\Geeta-Share\cubes assembly\20160614-019-output\20160614-019.h5'
+inputDir = r'Z:\Geeta-Share\cubes assembly\20160614-019-output'
+outputDir = r'Z:\Geeta-Share\cubes assembly\20160614-019-output\output'
 pixInNM = 1/0.9172754
 fps = 25
 microscope = 'JOEL2010' #'JOEL2010','T12'
@@ -199,10 +199,74 @@ if (rank==0):
 
 
 #######################################################################
+# REMOVING UNWANTED PARTICLES
+#######################################################################
+#keepList = [1,2,3,5]
+#removeList = []
+
+#if (rank==0):
+	#print "Removing unwanted particles"
+
+#if (rank==0):
+    #fp = h5py.File(outputFile, 'r+')
+#else:
+    #fp = h5py.File(outputFile, 'r')
+#particleList = fp.attrs['particleList']
+#if not removeList:
+	#removeList = [s for s in particleList if s not in keepList]
+#tracking.removeParticles(fp,removeList,comm,size,rank)
+#fp.flush(), fp.close()    
+#comm.Barrier()
+#######################################################################
+
+
+#######################################################################
+# GLOBAL RELABELING OF PARTICLES
+#######################################################################
+#correctionList = [[3, 1]]
+
+#if (rank==0):
+	#print "Global relabeling of  particles"
+    
+#if (rank==0):
+    #fp = h5py.File(outputFile, 'r+')
+#else:
+    #fp = h5py.File(outputFile, 'r')
+#tracking.globalRelabelParticles(fp,correctionList,comm,size,rank)
+#fp.flush(), fp.close()    
+#comm.Barrier()
+#######################################################################
+
+
+#######################################################################
+# RELABEL PARTICLES IN THE ORDER OF OCCURENCE
+#######################################################################
+#if (rank==0):
+    #fp = h5py.File(outputFile, 'r+')
+#else:
+    #fp = h5py.File(outputFile, 'r')
+#tracking.relabelParticles(fp,comm,size,rank)
+#fp.flush(), fp.close()    
+#comm.Barrier()
+#######################################################################
+
+#######################################################################
+# GENERATING IMAGES WITH LABELLED PARTICLES
+#######################################################################
+#if (rank==0):
+    #print "Generating images with labelled particles"
+#fp = h5py.File(outputFile, 'r')
+#tracking.generateLabelImages(fp,outputDir+'/segmentation/tracking',fontScale,size,rank)
+#fp.flush(), fp.close()
+#comm.Barrier()
+######################################################################
+
+
+#######################################################################
 # FINDING OUT THE MEASURES FOR TRACKED PARTICLES
 #######################################################################
 #if (rank==0):
-	#print "Finding measures for tracked particles"
+    #print "Finding measures for tracked particles"
 
 #fp = h5py.File(outputFile, 'r')
 #[row,col,numFrames,frameList] = misc.getVitals(fp)
@@ -275,15 +339,16 @@ if (rank==0):
     slopes2 = numpy.empty(x1.shape)
     slopes2[:] = numpy.NaN
     fp = h5py.File(outputFile, 'r')
-    for frame in range(1,11):
-		labelImg = fp['/segmentation/labelStack/'+str(frame).zfill(zfillVal)].value
-		helper = imageProcess.FindAngleHelper(labelImg)
-		helper.connect()
-		plt.show()
-		slopes1[frame-1] = helper.first_slope
-		slopes2[frame-1] = helper.second_slope
-    slope_difference = slopes1 - slopes2	
-    numpy.savetxt(outputDir+'/relative_distance2.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, slopes1, slopes2, slope_difference]),fmt='%.6f')
+    for frame in range(1,130):
+        gImgRaw = fp['/dataProcessing/gImgRawStack/'+str(frame).zfill(zfillVal)].value
+        helper = imageProcess.FindAngleHelper(gImgRaw)
+        helper.connect()
+        plt.show()
+        slopes1[frame-1] = helper.first_slope
+        slopes2[frame-1] = helper.second_slope
+        print frame, helper.first_slope, helper.second_slope
+    slope_difference = slopes1 - slopes2
+    numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, slopes1, slopes2, slope_difference]),fmt='%.6f')
     
 #######################################################################
 # Plotting Graph Between Time and Relative Distance
@@ -297,13 +362,20 @@ if (rank==0):
     #txtfile = numpy.loadtxt(outputDir+'/relative_distance.dat')
     #time = txtfile[:,0]
     #relative_distance = txtfile[:,5]
+    ##slope_difference = txtfile[:,8]
     #time, relative_distance = remove_nan_for_plot(time, relative_distance)
+    ##time, slope_difference = remove_nan_for_plot(time,slope_difference)
     #plt.figure(figsize=[6,3.5])
     #plt.plot(time, relative_distance, '-o', color='steelblue', lw=2, mfc='none', mec='orangered', ms=4)
+    ##plt.plot(time, slope_difference, '-o', color='steelblue', lw=2, mfc='none', mec='orangered', ms=4)
     #plt.xlabel('time (seconds)')
     #plt.ylabel('relative distance (nm)')
-    #plt.xlim([-0.5, 5.5])
-    #plt.ylim([50, 95])
+    ##plt.ylabel('slope_difference (degrees)')
+    ##plt.xlim([-0.5, 5.5])
+    #plt.xlim([0,3])
+    ##plt.ylim([50, 95])
+    #plt.ylim([90, 125])
     #plt.tight_layout()
-    #plt.savefig('nanocube_relative_diatance.png', dpi=300)
+    #plt.savefig(outputDir+'/nanocube_relative_diatance.png', dpi=300)
+    ##plt.savefig(outputDir+'/nanocube_slope_difference.png', dpi=300)
     #plt.show()

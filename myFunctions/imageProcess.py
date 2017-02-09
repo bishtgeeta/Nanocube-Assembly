@@ -29,7 +29,7 @@ class FindAngleHelper(object):
         
         self.figure = plt.figure()
         self.ax1 = plt.subplot2grid((5,2), (0,0), colspan=2, rowspan=4)
-        self.ax1.imshow(self.data, cmap='gray', origin='lower')
+        self.ax1.imshow(self.data, cmap='gray')
         self.ax1.set_xlim([0, data.shape[1]])
         self.ax1.set_ylim([0, data.shape[0]])
         self.line,  = self.ax1.plot([1,1], [1,1])
@@ -87,7 +87,7 @@ class FindAngleHelper(object):
     def retry(self, event):
         self.first_line = None
         self.ax1.clear()
-        self.ax1.imshow(self.data, cmap='gray', origin='lower')
+        self.ax1.imshow(self.data, cmap='gray')
         self.ax1.set_xlim([0, data.shape[1]])
         self.ax1.set_ylim([0, data.shape[0]])
         self.line, = self.ax1.plot([1,1], [1,1])
