@@ -30,8 +30,8 @@ class FindAngleHelper(object):
         self.figure = plt.figure()
         self.ax1 = plt.subplot2grid((5,2), (0,0), colspan=2, rowspan=4)
         self.ax1.imshow(self.data, cmap='gray')
-        self.ax1.set_xlim([0, data.shape[1]])
-        self.ax1.set_ylim([0, data.shape[0]])
+        self.ax1.set_xlim([0, self.data.shape[1]])
+        self.ax1.set_ylim([0, self.data.shape[0]])
         self.line,  = self.ax1.plot([1,1], [1,1])
         
         self.ax2 = plt.subplot2grid((5,2), (4,0))
@@ -77,6 +77,8 @@ class FindAngleHelper(object):
         self.cidmotion = self.figure.canvas.mpl_connect('motion_notify_event', self.on_move)
 
     def _get_slope(self, line):
+		if line[1] == line[0]:
+			return 90
         tan_theta = (line[3] - line[2]) * 1.0 / (line[1] - line[0])
         return numpy.rad2deg(numpy.arctan(tan_theta))
         
@@ -88,11 +90,10 @@ class FindAngleHelper(object):
         self.first_line = None
         self.ax1.clear()
         self.ax1.imshow(self.data, cmap='gray')
-        self.ax1.set_xlim([0, data.shape[1]])
-        self.ax1.set_ylim([0, data.shape[0]])
+        self.ax1.set_xlim([0, self.data.shape[1]])
+        self.ax1.set_ylim([0, self.data.shape[0]])
         self.line, = self.ax1.plot([1,1], [1,1])
         
-
 #######################################################################
 # NORMALIZE AN 8 BIT GRAYSCALE IMAGE
 #######################################################################
