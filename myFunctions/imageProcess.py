@@ -26,6 +26,7 @@ class FindAngleHelper(object):
         self.first_line = None
         self.first_slope = numpy.NaN
         self.second_slope = numpy.NaN
+        self.intersection_angle = numpy.NaN
         
         self.figure = plt.figure()
         self.ax1 = plt.subplot2grid((5,2), (0,0), colspan=2, rowspan=4)
@@ -58,9 +59,13 @@ class FindAngleHelper(object):
         if (self.x0 - self.x1)**2 + (self.y0 - self.y1)**2  > self.line_length**2:
             self.ax1.plot([self.x0, self.x1], [self.y0, self.y1])
             if self.first_line is None:
+                self.point1 = numpy.array([self.x0, self.y0])
+                self.point2 = numpy.array([self.x1, self.y1])
                 self.first_line = [self.x0, self.x1, self.y0, self.y1]
                 self.first_slope = self._get_slope(self.first_line)
             else:
+                self.point3 = numpy.array([self.x0, self.y0])
+                self.point4 = numpy.array([self.x1, self.y1])
                 self.second_line = [self.x0, self.x1, self.y0, self.y1]
                 self.second_slope = self._get_slope(self.second_line)
         
@@ -77,12 +82,28 @@ class FindAngleHelper(object):
         self.cidmotion = self.figure.canvas.mpl_connect('motion_notify_event', self.on_move)
 
     def _get_slope(self, line):
-		if line[1] == line[0]:
-			return 90
+        if line[1] == line[0]:
+            return 90
         tan_theta = (line[3] - line[2]) * 1.0 / (line[1] - line[0])
         return numpy.rad2deg(numpy.arctan(tan_theta))
+     
         
+    def _get_intersection_angle(self):
+        ray1 = self.point2 - self.point1
+        ray2 = self.point4 - self.point3
+        cos_theta = numpy.dot(ray1, ray2) / (numpy.linalg.norm(ray1) * numpy.linalg.norm(ray2))
+        theta = numpy.rad2deg(numpy.arccos(cos_theta))
+        self.intersection_angle_sign = numpy.sign(numpy.cross(ray1, ray2))
+        if theta < 0:
+            self.intersection_angle = self.intersection_angle_sign * (180 + theta)
+        else:
+            self.intersection_angle = self.intersection_angle_sign * theta
+            
+        return self.intersection_angle
+
+    
     def accept(self, event):
+        _ = self._get_intersection_angle()
         time.sleep(0.5)
         plt.close('all')
         

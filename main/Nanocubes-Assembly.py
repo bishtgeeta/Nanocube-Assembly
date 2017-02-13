@@ -322,8 +322,19 @@ if (rank==0):
 
 
 #######################################################################
-# FINDING OUT RELATIVE DISTANCE BETWEEN PARTICLES
+# FINDING OUT RELATIVE DISTANCE AND ANGLE BETWEEN PARTICLES
 #######################################################################
+def get_sign_of_angle(centroid1, centroid2, intersection_point):
+    line1 = centroid2 - centroid1
+    line2 = intersection_point - centroid1
+    return numpy.sign(numpy.cross(line1, line2))
+    
+def get_value_of_angle(first_slope, second_slope):
+    diff = first_slope - second_slope
+    if diff < 0:
+        return 180 + diff
+    else:
+        return diff
 
 if (rank==0):
     print "Finding the relative distance"
@@ -338,6 +349,8 @@ if (rank==0):
     slopes1[:] = numpy.NaN
     slopes2 = numpy.empty(x1.shape)
     slopes2[:] = numpy.NaN
+    intersection_angles = numpy.empty(x1.shape)
+    intersection_angles[:] = numpy.NaN
     fp = h5py.File(outputFile, 'r')
     for frame in range(1,130):
         gImgRaw = fp['/dataProcessing/gImgRawStack/'+str(frame).zfill(zfillVal)].value
@@ -346,9 +359,10 @@ if (rank==0):
         plt.show()
         slopes1[frame-1] = helper.first_slope
         slopes2[frame-1] = helper.second_slope
-        print frame, helper.first_slope, helper.second_slope
-    slope_difference = slopes1 - slopes2
-    numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, slopes1, slopes2, slope_difference]),fmt='%.6f')
+        intersection_angles[frame-1] = helper.intersection_angle
+
+        print frame, helper.first_slope, helper.second_slope, helper.intersection_angle
+    numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, slopes1, slopes2, intersection_angles]),fmt='%.6f')
     
 #######################################################################
 # Plotting Graph Between Time and Relative Distance
