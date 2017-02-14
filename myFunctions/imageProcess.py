@@ -105,7 +105,7 @@ class FindAngleHelper(object):
 
     
     def accept(self, event):
-		_ = self._get_intersection_angle()
+        _ = self._get_intersection_angle()
         time.sleep(0.5)
         plt.close('all')
         
