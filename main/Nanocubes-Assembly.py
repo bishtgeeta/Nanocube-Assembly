@@ -352,7 +352,7 @@ if (rank==0):
     intersection_angles = numpy.empty(x1.shape)
     intersection_angles[:] = numpy.NaN
     fp = h5py.File(outputFile, 'r')
-    for frame in range(1,130):
+    for frame in range(1,57):
         gImgRaw = fp['/dataProcessing/gImgRawStack/'+str(frame).zfill(zfillVal)].value
         helper = imageProcess.FindAngleHelper(gImgRaw)
         helper.connect()
@@ -368,38 +368,38 @@ if (rank==0):
 # Plotting Graph Between Time and Relative Distance
 #######################################################################
 
-def remove_nan_for_plot(x,y):
-    not_nan = ~numpy.isnan(y)
-    return x[not_nan], y[not_nan]
+#def remove_nan_for_plot(x,y):
+    #not_nan = ~numpy.isnan(y)
+    #return x[not_nan], y[not_nan]
 
-def plot_line(x, y, xlabel, ylabel, figsize=[6,3.5], 
-					xlimits=None, ylimits=None, savefile=None):
+#def plot_line(x, y, xlabel, ylabel, figsize=[6,3.5], 
+					#xlimits=None, ylimits=None, savefile=None):
 
-    x, y = remove_nan_for_plot(x, y)
-    plt.figure(figsize=figsize)
-    plt.plot(x, y, '-o', color='steelblue', lw=2, mfc='none', mec='orangered', ms=4)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    if xlimits is not None:
-		plt.xlim(xlimits)
-	if ylimits is not None:
-		plt.ylim(ylimits)
-    plt.tight_layout()
-    if savefile is not None:
-		plt.savefig(savefile, dpi=300)
-    plt.show()
+    #x, y = remove_nan_for_plot(x, y)
+    #plt.figure(figsize=figsize)
+    #plt.plot(x, y, '-o', color='steelblue', lw=2, mfc='none', mec='orangered', ms=4)
+    #plt.xlabel(xlabel)
+    #plt.ylabel(ylabel)
+    #if xlimits is not None:
+		#plt.xlim(xlimits)
+	#if ylimits is not None:
+		#plt.ylim(ylimits)
+    #plt.tight_layout()
+    #if savefile is not None:
+		#plt.savefig(savefile, dpi=300)
+    #plt.show()
 
-if (rank == 0):
-    txtfile = numpy.loadtxt(outputDir+'/relative_distance.dat')
-    time = txtfile[:,0]
-    relative_distance = txtfile[:,5]
-    slope_difference = txtfile[:,8]
-    plot_line(time, relative_distance, [-0.5, 5.5], [50, 95], 
-				'time (seconds)', 'relative distance (nm)', 
-				savefile=outputDir+'/nanocube_relative_distance.png')
-    plot_line(time, slope_difference, [0,3], [90, 125], 
-				'time (seconds)', 'slope_difference (degrees)', 
-				savefile=outputDir+'/nanocube_slope_difference.png')
+#if (rank == 0):
+    #txtfile = numpy.loadtxt(outputDir+'/relative_distance.dat')
+    #time = txtfile[:,0]
+    #relative_distance = txtfile[:,5]
+    #slope_difference = txtfile[:,8]
+    #plot_line(time, relative_distance, [-0.5, 5.5], [50, 95], 
+				#'time (seconds)', 'relative distance (nm)', 
+				#savefile=outputDir+'/nanocube_relative_distance.png')
+    #plot_line(time, slope_difference, [0,3], [90, 125], 
+				#'time (seconds)', 'slope_difference (degrees)', 
+				#savefile=outputDir+'/nanocube_slope_difference.png')
     
     
     #time, relative_distance = remove_nan_for_plot(time, relative_distance)
