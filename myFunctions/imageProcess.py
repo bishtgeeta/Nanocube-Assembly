@@ -88,11 +88,11 @@ class FindAngleHelper(object):
         return numpy.rad2deg(numpy.arctan(tan_theta))
         
     def _get_intersection_angle(self):
-		try:
-			ray1 = self.point2 - self.point1
-			ray2 = self.point4 - self.point3
-		except AttributeError:
-			return numpy.NaN
+        try:
+            ray1 = self.point2 - self.point1
+            ray2 = self.point4 - self.point3
+        except AttributeError:
+            return numpy.NaN
         cos_theta = numpy.dot(ray1, ray2) / (numpy.linalg.norm(ray1) * numpy.linalg.norm(ray2))
         theta = numpy.rad2deg(numpy.arccos(cos_theta))
         self.intersection_angle_sign = numpy.sign(numpy.cross(ray1, ray2))
@@ -105,7 +105,7 @@ class FindAngleHelper(object):
 
     
     def accept(self, event):
-		_ = self._get_intersection_angle(ray1, ray2)
+		_ = self._get_intersection_angle()
         time.sleep(0.5)
         plt.close('all')
         
