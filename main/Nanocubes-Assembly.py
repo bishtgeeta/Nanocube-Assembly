@@ -17,18 +17,29 @@ import dataViewer
 import misc
 import tracking
 
-inputFile = r'Z:\Geeta-Share\cubes assembly\20160614-019-output\20160614-019.avi'
-outputFile = r'Z:\Geeta-Share\cubes assembly\20160614-019-output\20160614-019.h5'
-inputDir = r'Z:\Geeta-Share\cubes assembly\20160614-019-output'
-outputDir = r'Z:\Geeta-Share\cubes assembly\20160614-019-output\output'
-pixInNM = 1/0.9172754
-fps = 25
+inputFile = r'Z:\Geeta-Share\rod assembly\20170228-009(1)-output\20170228-009(1).avi'
+outputFile = r'Z:\Geeta-Share\rod assembly\20170228-009(1)-output\20170228-009(1).h5'
+inputDir = r'Z:\Geeta-Share\rod assembly\20170228-009(1)-output'
+outputDir = r'Z:\Geeta-Share\rod assembly\20170228-009(1)-output\output'
+pixInNM = 1.15714713
+fps = 10
 microscope = 'JOEL2010' #'JOEL2010','T12'
 camera = 'One-view' #'Orius', 'One-view'
 owner = 'Shu Fen'
 zfillVal = 6
 fontScale = 1
 structure = [[1,1,1],[1,1,1],[1,1,1]]
+
+
+#########################################
+# CHANGING PIX IN NM
+#########################################
+
+#fp = h5py.File(outputFile, 'r+')
+#fp.attrs['pixInNM'] = pixInNM
+#fp.attrs['pixInAngstrom'] = pixInNM*10
+#fp.close()
+
 
 #######################################################################
 # INITIALIZATION FOR THE MPI ENVIRONMENT
@@ -111,7 +122,7 @@ if (rank==0):
         
 #fp.flush(), fp.close()
 #comm.Barrier()
-#######################################################################
+########################################################################
 
 
 #######################################################################
@@ -132,7 +143,11 @@ if (rank==0):
     #gImgProc = fp['/dataProcessing/processedStack/'+str(frame).zfill(zfillVal)].value
     #bImg = gImgProc>=myCythonFunc.threshold_kapur(gImgProc.flatten())
     #bImg = myCythonFunc.areaThreshold(bImg.astype('uint8'), areaRange=areaRange)
-    #bImg = imageProcess.binary_erosion(bImg, iterations=1)
+    
+    #bImg = imageProcess.binary_closing(bImg, iterations=6)
+    #bImg = imageProcess.convexHull(bImg)
+    
+    ##bImg = imageProcess.binary_erosion(bImg, iterations=1)
     #bImgBdry = imageProcess.normalize(imageProcess.boundary(bImg))
     #finalImage = numpy.column_stack((numpy.maximum(gImgNorm,bImgBdry), gImgNorm))
     #cv2.imwrite(outputDir+'/segmentation/result/'+str(frame).zfill(zfillVal)+'.png', finalImage)
@@ -170,13 +185,13 @@ if (rank==0):
         
 #fp.flush(), fp.close()
 #comm.Barrier()
-#######################################################################
+######################################################################
 
 #######################################################################
 # LABELLING PARTICLES
 #######################################################################
-#centerDispRange = [40,40]
-#perAreaChangeRange = [20,20]
+#centerDispRange = [100,100]
+#perAreaChangeRange = [50,50]
 #missFramesTh = 10
     
 #if (rank==0):
@@ -201,7 +216,7 @@ if (rank==0):
 #######################################################################
 # REMOVING UNWANTED PARTICLES
 #######################################################################
-#keepList = [1,2,3,5]
+#keepList = [1,2,4,10,11,12,13,14,16,17,19,20,21,24,25,27]
 #removeList = []
 
 #if (rank==0):
@@ -223,7 +238,7 @@ if (rank==0):
 #######################################################################
 # GLOBAL RELABELING OF PARTICLES
 #######################################################################
-#correctionList = [[3, 1]]
+#correctionList = [[4,10,11,1],[12,2],[14,16,17,19,20,21,24,25,27,13]]
 
 #if (rank==0):
 	#print "Global relabeling of  particles"
@@ -239,8 +254,30 @@ if (rank==0):
 
 
 #######################################################################
-# RELABEL PARTICLES IN THE ORDER OF OCCURENCE
+# FRAME-WISE CORRECTION OF PARTICLE LABELS
 #######################################################################
+#frameWiseCorrectionList = [\
+#[range(1455,1667),[4,2]],\
+#[range(1455,1667),[3,4]],\
+#[range(1455,1667),[2,3]]\
+#]
+
+#if (rank==0):
+    #print "Frame-wise relabeling of  particles"
+    
+#if (rank==0):
+    #fp = h5py.File(outputFile, 'r+')
+#else:
+    #fp = h5py.File(outputFile, 'r')
+#tracking.framewiseRelabelParticles(fp,frameWiseCorrectionList,comm,size,rank)
+#fp.flush(), fp.close()    
+#comm.Barrier()
+#######################################################################
+
+
+#######################################################################
+# RELABEL PARTICLES IN THE ORDER OF OCCURENCE
+########################################################################
 #if (rank==0):
     #fp = h5py.File(outputFile, 'r+')
 #else:
@@ -252,7 +289,7 @@ if (rank==0):
 
 #######################################################################
 # GENERATING IMAGES WITH LABELLED PARTICLES
-#######################################################################
+########################################################################
 #if (rank==0):
     #print "Generating images with labelled particles"
 #fp = h5py.File(outputFile, 'r')
@@ -264,7 +301,7 @@ if (rank==0):
 
 #######################################################################
 # FINDING OUT THE MEASURES FOR TRACKED PARTICLES
-#######################################################################
+########################################################################
 #if (rank==0):
     #print "Finding measures for tracked particles"
 
@@ -324,17 +361,17 @@ if (rank==0):
 #######################################################################
 # FINDING OUT RELATIVE DISTANCE AND ANGLE BETWEEN PARTICLES
 #######################################################################
-#def get_sign_of_angle(centroid1, centroid2, intersection_point):
-    #line1 = centroid2 - centroid1
-    #line2 = intersection_point - centroid1
-    #return numpy.sign(numpy.cross(line1, line2))
+##def get_sign_of_angle(centroid1, centroid2, intersection_point):
+    ##line1 = centroid2 - centroid1
+    ##line2 = intersection_point - centroid1
+    ##return numpy.sign(numpy.cross(line1, line2))
     
-#def get_value_of_angle(first_slope, second_slope):
-    #diff = first_slope - second_slope
-    #if diff < 0:
-        #return 180 + diff
-    #else:
-        #return diff
+##def get_value_of_angle(first_slope, second_slope):
+    ##diff = first_slope - second_slope
+    ##if diff < 0:
+        ##return 180 + diff
+    ##else:
+        ##return diff
 
 #if (rank==0):
     #print "Finding the relative distance"
@@ -345,59 +382,60 @@ if (rank==0):
     #x2 = txtfile[:,6]
     #y2 = txtfile[:,7]
     #relative_distance = numpy.sqrt( (x2 - x1)**2 + (y2 - y1)**2 )
-    #slopes1 = numpy.empty(x1.shape)
-    #slopes1[:] = numpy.NaN
-    #slopes2 = numpy.empty(x1.shape)
-    #slopes2[:] = numpy.NaN
-    #intersection_angles = numpy.empty(x1.shape)
-    #intersection_angles[:] = numpy.NaN
-    #fp = h5py.File(outputFile, 'r')
-    #for frame in range(1,57):
-        #gImgRaw = fp['/dataProcessing/gImgRawStack/'+str(frame).zfill(zfillVal)].value
-        #helper = imageProcess.FindAngleHelper(gImgRaw)
-        #helper.connect()
-        #plt.show()
-        #slopes1[frame-1] = helper.first_slope
-        #slopes2[frame-1] = helper.second_slope
-        #intersection_angles[frame-1] = helper.intersection_angle
+    ##slopes1 = numpy.empty(x1.shape)
+    ##slopes1[:] = numpy.NaN
+    ##slopes2 = numpy.empty(x1.shape)
+    ##slopes2[:] = numpy.NaN
+    ##intersection_angles = numpy.empty(x1.shape)
+    ##intersection_angles[:] = numpy.NaN
+    ##fp = h5py.File(outputFile, 'r')
+    ##for frame in range(1,77):
+        ##gImgRaw = fp['/dataProcessing/gImgRawStack/'+str(frame).zfill(zfillVal)].value
+        ##helper = imageProcess.FindAngleHelper(gImgRaw)
+        ##helper.connect()
+        ##plt.show()
+        ##slopes1[frame-1] = helper.first_slope
+        ##slopes2[frame-1] = helper.second_slope
+        ##intersection_angles[frame-1] = helper.intersection_angle
 
-        #print frame, helper.first_slope, helper.second_slope, helper.intersection_angle
-    #numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, slopes1, slopes2, intersection_angles]),fmt='%.6f')
+        ##print frame, helper.first_slope, helper.second_slope, helper.intersection_angle
+    ##numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, slopes1, slopes2, intersection_angles]),fmt='%.6f')
+    #numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance]),fmt='%.6f')
     
 #######################################################################
 # Plotting Graph Between Time and Relative Distance
 #######################################################################
 
-def remove_nan_for_plot(x,y):
-    not_nan = ~numpy.isnan(y)
-    return x[not_nan], y[not_nan]
+#def remove_nan_for_plot(x,y):
+    #not_nan = ~numpy.isnan(y)
+    #return x[not_nan], y[not_nan]
 
 
-def plot_line(x, y, xlabel, ylabel, figsize=[6,3.5], 
-					xlimits=None, ylimits=None, savefile=None):
+#def plot_line(x, y, xlabel, ylabel, figsize=[6,3.5], 
+					#xlimits=None, ylimits=None, savefile=None):
 
-    x, y = remove_nan_for_plot(x, y)
-    plt.figure(figsize=figsize)
-    plt.plot(x, y, '-o', color='steelblue', lw=2, mfc='none', mec='orangered', ms=4)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    if xlimits is not None:
-        plt.xlim(xlimits)
-    if ylimits is not None:
-        plt.ylim(ylimits)
-    plt.tight_layout()
-    if savefile is not None:
-        plt.savefig(savefile, dpi=300)
-    plt.show()
+    #x, y = remove_nan_for_plot(x, y)
+    #plt.figure(figsize=figsize)
+    #plt.plot(x, y, '-o', color='steelblue', lw=2, mfc='none', mec='orangered', ms=4)
+    #plt.xlabel(xlabel)
+    #plt.ylabel(ylabel)
+    #if xlimits is not None:
+        #plt.xlim(xlimits)
+    #if ylimits is not None:
+        #plt.ylim(ylimits)
+    #plt.tight_layout()
+    #if savefile is not None:
+        #plt.savefig(savefile, dpi=300)
+    #plt.show()
 
-if (rank == 0):
-    txtfile = numpy.loadtxt(outputDir+'/relative_distance.dat')
-    time = txtfile[:,0]
-    relative_distance = txtfile[:,5]
-    slope_difference = txtfile[:,8]
-    plot_line(x=time, y=relative_distance, xlimits=[0, 0.5], ylimits=[70, 85], 
-				xlabel='time (seconds)', ylabel='relative distance (nm)', 
-				savefile=outputDir+'/nanocube_relative_distance.png')
-    plot_line(x=time, y=slope_difference, xlimits=[0,1.5], ylimits=[-60, 10], 
-				xlabel='time (seconds)', ylabel='slope_difference (degrees)', 
-				savefile=outputDir+'/nanocube_slope_difference.png')
+#if (rank == 0):
+    #txtfile = numpy.loadtxt(outputDir+'/relative_distance.dat')
+    #time = txtfile[:,0]
+    #relative_distance = txtfile[:,5]
+    ##slope_difference = txtfile[:,8]
+    #plot_line(x=time, y=relative_distance, xlabel='time (seconds)', ylabel='relative distance (nm)', 
+				#xlimits=[0, 50], ylimits=[50,200], 
+				#savefile=outputDir+'/nanorod_relative_distance.png')
+    ##plot_line(x=time, y=slope_difference,xlabel='time (seconds)', ylabel='slope_difference (degrees)', 
+				##xlimits=[0,3.5], ylimits=[0, 50], 
+				##savefile=outputDir+'/nanocube_slope_difference.png')

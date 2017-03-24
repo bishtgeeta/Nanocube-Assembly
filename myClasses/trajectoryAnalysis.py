@@ -40,9 +40,10 @@ class trajectoryAnalysis(object):
         self.pixInNM = pixInNM
         self.imgRow = imgRow
         self.imgCol = imgCol
+        self.numMeasures = 5
         self.data = numpy.loadtxt(fileName,skiprows=skiprows)
         [self.row,self.col] = self.data.shape
-        self.numParticles = (self.col-1)/6
+        self.numParticles = (self.col-1)/self.numMeasures
         self.particleList = range(1,self.numParticles+1)
         if (measureInPix==True):
             self.pixel2nm()
@@ -73,7 +74,7 @@ class trajectoryAnalysis(object):
         fig = plt.figure(figsize=(3,2))
         ax = fig.add_axes([0,0,1,1])
         for particle in particleList:
-            x=self.data[:,(particle-1)*6+1]; y=self.data[:,(particle-1)*6+2]; t=self.data[:,0]
+            x=self.data[:,(particle-1)*self.numMeasures+1]; y=self.data[:,(particle-1)*self.numMeasures+2]; t=self.data[:,0]
             x=x[numpy.isfinite(x)]; y=y[numpy.isfinite(y)]; t=t[numpy.isfinite(x)]
             ax.plot(t,x,label='x')
             ax.plot(t,y,label='y')
@@ -96,7 +97,7 @@ class trajectoryAnalysis(object):
         fig = plt.figure(figsize=(3,2))
         ax = fig.add_axes([0,0,1,1])
         for particle in particleList:
-            x=self.data[:,(particle-1)*6+1]; y=self.data[:,(particle-1)*6+2]; t=self.data[:,0]
+            x=self.data[:,(particle-1)*self.numMeasures+1]; y=self.data[:,(particle-1)*self.numMeasures+2]; t=self.data[:,0]
             x=x[numpy.isfinite(x)]; y=y[numpy.isfinite(y)]; t=t[numpy.isfinite(x)]
             dx, dy, dt = numpy.diff(x,n=1), numpy.diff(y,n=1), numpy.diff(t,n=1)
             dS = numpy.sqrt(dx**2+dy**2)
@@ -120,7 +121,7 @@ class trajectoryAnalysis(object):
             fig = plt.figure(figsize=(2,2))
             ax = fig.add_axes([0,0,1,1])
             for particle in particleList:
-                x=self.data[:,(particle-1)*6+1]; y=self.data[:,(particle-1)*6+2]
+                x=self.data[:,(particle-1)*self.numMeasures+1]; y=self.data[:,(particle-1)*self.numMeasures+2]
                 x=x[numpy.isfinite(x)]; y=y[numpy.isfinite(y)]
                 if (x.shape[0]>0):
                     x=x-x[0]; y=y-y[0]
@@ -135,7 +136,7 @@ class trajectoryAnalysis(object):
             fig = plt.figure(figsize=(2,2))
             ax = fig.add_axes([0,0,1,1])
             for particle in particleList:
-                x=self.data[:,(particle-1)*6+1]; y=self.data[:,(particle-1)*6+2]
+                x=self.data[:,(particle-1)*self.numMeasures+1]; y=self.data[:,(particle-1)*self.numMeasures+2]
                 x=x[numpy.isfinite(x)]; y=y[numpy.isfinite(y)]
                 ax.plot(x,y)
             ax.set_xlim([0,self.pixInNM*self.imgCol])
@@ -158,13 +159,13 @@ class trajectoryAnalysis(object):
         if (image==True):
             ax.imshow(gImg, extent=[0,self.pixInNM*self.imgCol,0,self.pixInNM*self.imgRow])
             for particle in particleList:
-                x=self.data[frame-1:,(particle-1)*6+1]; y=self.data[frame-1:,(particle-1)*6+2]
+                x=self.data[frame-1:,(particle-1)*self.numMeasures+1]; y=self.data[frame-1:,(particle-1)*self.numMeasures+2]
                 #x=x[numpy.isfinite(x)]; y=y[numpy.isfinite(y)]
                 if (numpy.isfinite(x[0]) and numpy.isfinite(y[0])):
                     plotFunc.colorline(ax,x,y)
         elif (image==False):
             for particle in particleList:
-                x=self.data[frame-1:,(particle-1)*6+1]; y=self.data[frame-1:,(particle-1)*6+2]
+                x=self.data[frame-1:,(particle-1)*self.numMeasures+1]; y=self.data[frame-1:,(particle-1)*self.numMeasures+2]
                 if (numpy.isfinite(x[0]) and numpy.isfinite(y[0])):
                     plotFunc.colorline(ax,x,y)
             ax.set_xlim([0,self.pixInNM*self.imgCol])
@@ -195,7 +196,7 @@ class trajectoryAnalysis(object):
         fig = plt.figure(figsize=(2,2))
         ax = plt.axes(projection='3d')
         for particle in particleList:
-            x=self.data[:,(particle-1)*6+1]; y=self.data[:,(particle-1)*6+2]; t=self.data[:,0]
+            x=self.data[:,(particle-1)*self.numMeasures+1]; y=self.data[:,(particle-1)*self.numMeasures+2]; t=self.data[:,0]
             x=x[numpy.isfinite(x)]; y=y[numpy.isfinite(y)]; t=t[numpy.isfinite(y)]
             ax.plot(x,y,t)
         ax.set_xlabel('X (nm)')
@@ -222,7 +223,7 @@ class trajectoryAnalysis(object):
             self.MSDDict[particle]['time'] = []
             
         for particle in particleList:
-            x=self.data[:,(particle-1)*6+1]; y=self.data[:,(particle-1)*6+2]
+            x=self.data[:,(particle-1)*self.numMeasures+1]; y=self.data[:,(particle-1)*self.numMeasures+2]
             for dt in range(self.row):
                 S=0; N=0
                 for t in range(self.row-dt):
@@ -275,7 +276,7 @@ class trajectoryAnalysis(object):
             self.diffusionDict[particle]['diffusion'] = []
             self.diffusionDict[particle]['radius'] = []
         for particle in particleList:
-            x=self.data[:,(particle-1)*6+1]; y=self.data[:,(particle-1)*6+2]; t=self.data[:,0]; radius=self.data[:,(particle-1)*6+6]
+            x=self.data[:,(particle-1)*self.numMeasures+1]; y=self.data[:,(particle-1)*self.numMeasures+2]; t=self.data[:,0]; radius=self.data[:,(particle-1)*self.numMeasures+6]
             for r in range(self.row-1):
                 if (numpy.isfinite(x[r+1]) and numpy.isfinite(x[r]) and numpy.isfinite(y[r+1]) and numpy.isfinite(y[r])):
                     S = (x[r+1]-x[r])**2 + (y[r+1]-y[r])**2
@@ -408,9 +409,9 @@ class trajectoryAnalysis(object):
         x = self.data[:,0]
         for particle in particleList:
             if (particle == particleList[0]):
-                radius=self.data[:,(particle-1)*6+6]
+                radius=self.data[:,(particle-1)*self.numMeasures+6]
             else:
-                radius = numpy.column_stack((radius,self.data[:,(particle-1)*6+6]))
+                radius = numpy.column_stack((radius,self.data[:,(particle-1)*self.numMeasures+6]))
         avgRadius, stdRadius = numpy.zeros(self.row), numpy.zeros(self.row)
         for r in range(self.row):
             tempRad = radius[r,:]
@@ -439,9 +440,9 @@ class trajectoryAnalysis(object):
         x = self.data[:,0]
         for particle in particleList:
             if (particle == particleList[0]):
-                area=self.data[:,(particle-1)*6+3]
+                area=self.data[:,(particle-1)*self.numMeasures+3]
             else:
-                area = numpy.column_stack((area,self.data[:,(particle-1)*6+3]))
+                area = numpy.column_stack((area,self.data[:,(particle-1)*self.numMeasures+3]))
         avgArea, stdArea = numpy.zeros(self.row), numpy.zeros(self.row)
         for r in range(self.row):
             tempArea = area[r,:]
@@ -469,7 +470,7 @@ class trajectoryAnalysis(object):
         ax = fig.add_axes([0,0,1,1])
         x = self.data[:,0]
         for particle in particleList:
-            radius = self.data[:,(particle-1)*6+6]
+            radius = self.data[:,(particle-1)*self.numMeasures+6]
             ax.plot(x[numpy.isfinite(radius)],radius[numpy.isfinite(radius)])
         ax.set_xlabel('Time (s)')
         ax.set_ylabel(r'$R_{eff}$ (nm)')
