@@ -45,7 +45,7 @@ class trajectoryAnalysis(object):
         self.data = numpy.loadtxt(fileName,skiprows=skiprows)
         [self.row,self.col] = self.data.shape
         for colNum in range(self.col):
-            self.data[:, colNum] = fill_nan(self.data[:, colNum])
+            self.data[:, colNum] = self.fill_nan(self.data[:, colNum])
         self.numParticles = (self.col-1)/self.numMeasures
         self.particleList = range(1,self.numParticles+1)
         if (measureInPix==True):
