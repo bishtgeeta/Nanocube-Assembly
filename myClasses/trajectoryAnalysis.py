@@ -58,7 +58,7 @@ class trajectoryAnalysis(object):
     def fill_nan(x):
         ind = np.where(~np.isnan(x))[0]
         vals = x[ind]
-        interp = interp1d(ind, vals)
+        interp = interp1d(ind, vals, kind='quadratic')
         nan_ind = np.where(np.isnan(x))[0]
         nan_vals = interp(nan_ind)
         x[nan_ind] = nan_vals
