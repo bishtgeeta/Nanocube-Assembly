@@ -6,6 +6,7 @@ import sys
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy import optimize
+from scipy.interpolate import interp1d
 
 sys.path.append(os.path.abspath('../myFunctions'))
 #import myPythonFunc
@@ -43,6 +44,8 @@ class trajectoryAnalysis(object):
         self.numMeasures = 5
         self.data = numpy.loadtxt(fileName,skiprows=skiprows)
         [self.row,self.col] = self.data.shape
+        for colNum in range(self.col):
+            self.data[:, colNum] = fill_nan(self.data[:, colNum])
         self.numParticles = (self.col-1)/self.numMeasures
         self.particleList = range(1,self.numParticles+1)
         if (measureInPix==True):
@@ -51,6 +54,15 @@ class trajectoryAnalysis(object):
         self.frameList = (self.fps*self.data[:,0]).astype('int')
     ##############################################################
     
+    @staticmethod
+    def fill_nan(x):
+        ind = np.where(~np.isnan(x))[0]
+        vals = x[ind]
+        interp = interp1d(ind, vals)
+        nan_ind = np.where(np.isnan(x))[0]
+        nan_vals = interp(nan_ind)
+        x[nan_ind] = nan_vals
+        return x
     
     ##############################################################
     def pixel2nm(self):
