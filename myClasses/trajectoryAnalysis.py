@@ -45,7 +45,7 @@ class trajectoryAnalysis(object):
         self.data = numpy.loadtxt(fileName,skiprows=skiprows)
         [self.row,self.col] = self.data.shape
         for colNum in range(self.col):
-            if 0 < numpy.isnan(self.data[:, colNum]).sum < self.data.shape[0]:
+            if 0 < numpy.isnan(self.data[:, colNum]).sum() < self.data.shape[0]:
                 self.data[:, colNum] = self.fill_nan(self.data[:, colNum])
         self.numParticles = (self.col-1)/self.numMeasures
         self.particleList = range(1,self.numParticles+1)
@@ -59,7 +59,7 @@ class trajectoryAnalysis(object):
     def fill_nan(x):
         ind = numpy.where(~numpy.isnan(x))[0]
         vals = x[ind]
-        interp = interp1d(ind, vals, kind='quadratic')
+        interp = interp1d(ind, vals, kind='linear')
         nan_ind = numpy.where(numpy.isnan(x))[0]
         nan_vals = interp(nan_ind)
         x[nan_ind] = nan_vals
