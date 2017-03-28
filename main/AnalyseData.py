@@ -13,10 +13,10 @@ import myCythonFunc
 
 
 #########################################################
-inputDir = r'Z:\Geeta-Share\rod assembly\20170228-009(1)-output'
-fileName = r'Z:\Geeta-Share\rod assembly\20170228-009(1)-output\output\imgDataNM - Copy.dat'
+inputDir = r'Z:\Geeta-Share\rod assembly\20170228-006(1)-output'
+fileName = r'Z:\Geeta-Share\rod assembly\20170228-006(1)-output\output\imgDataNM - Copy.dat'
 outputDir = inputDir
-gImg = cv2.imread(r'Z:\Geeta-Share\rod assembly\20170228-009(1)-output\output\dataProcessing\gImgRawStack\000001.png',0)
+gImg = cv2.imread(r'Z:\Geeta-Share\rod assembly\20170228-006(1)-output\output\dataProcessing\gImgRawStack\000001.png',0)
 imgRow, imgCol = gImg.shape
 pixInNM = 1.15714713
 skiprows=0
