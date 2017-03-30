@@ -361,17 +361,7 @@ if (rank==0):
 #######################################################################
 # FINDING OUT RELATIVE DISTANCE AND ANGLE BETWEEN PARTICLES
 #######################################################################
-##def get_sign_of_angle(centroid1, centroid2, intersection_point):
-    ##line1 = centroid2 - centroid1
-    ##line2 = intersection_point - centroid1
-    ##return numpy.sign(numpy.cross(line1, line2))
-    
-##def get_value_of_angle(first_slope, second_slope):
-    ##diff = first_slope - second_slope
-    ##if diff < 0:
-        ##return 180 + diff
-    ##else:
-        ##return diff
+
 
 #if (rank==0):
     #print "Finding the relative distance"
@@ -381,26 +371,23 @@ if (rank==0):
     #y1 = txtfile[:,2]
     #x2 = txtfile[:,6]
     #y2 = txtfile[:,7]
+    #x3 = txtfile[:,11]
+    #y3 = txtfile[:,12]
+    see_3rd_particle = np.isnan(x3)
     #relative_distance = numpy.sqrt( (x2 - x1)**2 + (y2 - y1)**2 )
-    ##slopes1 = numpy.empty(x1.shape)
-    ##slopes1[:] = numpy.NaN
-    ##slopes2 = numpy.empty(x1.shape)
-    ##slopes2[:] = numpy.NaN
-    ##intersection_angles = numpy.empty(x1.shape)
-    ##intersection_angles[:] = numpy.NaN
-    ##fp = h5py.File(outputFile, 'r')
-    ##for frame in range(1,77):
-        ##gImgRaw = fp['/dataProcessing/gImgRawStack/'+str(frame).zfill(zfillVal)].value
-        ##helper = imageProcess.FindAngleHelper(gImgRaw)
-        ##helper.connect()
-        ##plt.show()
-        ##slopes1[frame-1] = helper.first_slope
-        ##slopes2[frame-1] = helper.second_slope
-        ##intersection_angles[frame-1] = helper.intersection_angle
-
-        ##print frame, helper.first_slope, helper.second_slope, helper.intersection_angle
-    ##numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, slopes1, slopes2, intersection_angles]),fmt='%.6f')
-    #numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance]),fmt='%.6f')
+    slopes1 = txtfile[:,5]
+    slopes2 = txtfile[:,10]
+    intersection_angles = numpy.empty(x1.shape)
+    intersection_angles[:] = numpy.NaN
+    for frame_num in range(x1.shape[0]):
+		c1 = [x1[frame_num], y1[frame_num]]
+		c2 = [x2[frame_num], y2[frame_num]]
+		m1 = slopes1[frame_num]
+		m2 = slopes2[frame_num]
+		intersection_angles[frame_num] = imageProcess.get_intersection_angle(c1, m1, c2, m2)
+		
+    numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, slopes1, slopes2, intersection_angles]),fmt='%.6f')
+    #numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, ]),fmt='%.6f')
     
 #######################################################################
 # Plotting Graph Between Time and Relative Distance
