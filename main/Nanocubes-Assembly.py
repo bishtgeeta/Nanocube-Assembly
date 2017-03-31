@@ -17,11 +17,11 @@ import dataViewer
 import misc
 import tracking
 
-inputFile = r'Z:\Geeta-Share\rod assembly\20170228-009(1)-output\20170228-009(1).avi'
-outputFile = r'Z:\Geeta-Share\rod assembly\20170228-009(1)-output\20170228-009(1).h5'
-inputDir = r'Z:\Geeta-Share\rod assembly\20170228-009(1)-output'
-outputDir = r'Z:\Geeta-Share\rod assembly\20170228-009(1)-output\output'
-pixInNM = 1.15714713
+inputFile = r'Z:\Geeta-Share\bipyramid assembly\20170328-018-output\20170328-018.avi'
+outputFile = r'Z:\Geeta-Share\bipyramid assembly\20170328-018-output\20170328-018.h5'
+inputDir = r'Z:\Geeta-Share\bipyramid assembly\20170328-018-output'
+outputDir = r'Z:\Geeta-Share\bipyramid assembly\20170328-018-output\output'
+pixInNM = 1.09018554
 fps = 10
 microscope = 'JOEL2010' #'JOEL2010','T12'
 camera = 'One-view' #'Orius', 'One-view'
@@ -144,8 +144,8 @@ if (rank==0):
     #bImg = gImgProc>=myCythonFunc.threshold_kapur(gImgProc.flatten())
     #bImg = myCythonFunc.areaThreshold(bImg.astype('uint8'), areaRange=areaRange)
     
-    #bImg = imageProcess.binary_closing(bImg, iterations=6)
-    #bImg = imageProcess.convexHull(bImg)
+    #bImg = imageProcess.binary_closing(bImg, iterations=4)
+    ##bImg = imageProcess.convexHull(bImg)
     
     ##bImg = imageProcess.binary_erosion(bImg, iterations=1)
     #bImgBdry = imageProcess.normalize(imageProcess.boundary(bImg))
@@ -190,33 +190,33 @@ if (rank==0):
 #######################################################################
 # LABELLING PARTICLES
 #######################################################################
-#centerDispRange = [100,100]
-#perAreaChangeRange = [50,50]
-#missFramesTh = 10
+centerDispRange = [200,200]
+perAreaChangeRange = [50,50]
+missFramesTh = 10
     
-#if (rank==0):
-    #print "Labelling segmented particles"
-    #fp = h5py.File(outputFile, 'r+')
-    #[row,col,numFrames,frameList] = misc.getVitals(fp)
-    #maxID, occurenceFrameList = tracking.labelParticles(fp, centerDispRange=centerDispRange, perAreaChangeRange=perAreaChangeRange, missFramesTh=missFramesTh, structure=structure)
-    #fp.attrs['particleList'] = range(1,maxID+1)
-    #numpy.savetxt(outputDir+'/frameOccurenceList.dat',numpy.column_stack((fp.attrs['particleList'],occurenceFrameList)),fmt='%d')
-    #fp.flush(), fp.close()
-#comm.Barrier()
+if (rank==0):
+    print "Labelling segmented particles"
+    fp = h5py.File(outputFile, 'r+')
+    [row,col,numFrames,frameList] = misc.getVitals(fp)
+    maxID, occurenceFrameList = tracking.labelParticles(fp, centerDispRange=centerDispRange, perAreaChangeRange=perAreaChangeRange, missFramesTh=missFramesTh, structure=structure)
+    fp.attrs['particleList'] = range(1,maxID+1)
+    numpy.savetxt(outputDir+'/frameOccurenceList.dat',numpy.column_stack((fp.attrs['particleList'],occurenceFrameList)),fmt='%d')
+    fp.flush(), fp.close()
+comm.Barrier()
 
-#if (rank==0):
-    #print "Generating images with labelled particles"
-#fp = h5py.File(outputFile, 'r')
-#tracking.generateLabelImages(fp,outputDir+'/segmentation/tracking')
-#fp.flush(), fp.close()
-#comm.Barrier()
+if (rank==0):
+    print "Generating images with labelled particles"
+fp = h5py.File(outputFile, 'r')
+tracking.generateLabelImages(fp,outputDir+'/segmentation/tracking')
+fp.flush(), fp.close()
+comm.Barrier()
 #######################################################################
 
 
 #######################################################################
 # REMOVING UNWANTED PARTICLES
 #######################################################################
-#keepList = [1,2,4,10,11,12,13,14,16,17,19,20,21,24,25,27]
+#keepList = [1,2,3,6]
 #removeList = []
 
 #if (rank==0):
@@ -238,7 +238,7 @@ if (rank==0):
 #######################################################################
 # GLOBAL RELABELING OF PARTICLES
 #######################################################################
-#correctionList = [[4,10,11,1],[12,2],[14,16,17,19,20,21,24,25,27,13]]
+#correctionList = [[3,1]]
 
 #if (rank==0):
 	#print "Global relabeling of  particles"
@@ -257,9 +257,7 @@ if (rank==0):
 # FRAME-WISE CORRECTION OF PARTICLE LABELS
 #######################################################################
 #frameWiseCorrectionList = [\
-#[range(1455,1667),[4,2]],\
-#[range(1455,1667),[3,4]],\
-#[range(1455,1667),[2,3]]\
+#[range(4,1223),[1,2]]\
 #]
 
 #if (rank==0):
@@ -398,12 +396,12 @@ if (rank==0):
     #return x[not_nan], y[not_nan]
 
 
-#def plot_line(x, y, xlabel, ylabel, figsize=[6,3.5], 
+#def plot_line(x, y, xlabel, ylabel, figsize=[4,2.5], 
 					#xlimits=None, ylimits=None, savefile=None):
 
     #x, y = remove_nan_for_plot(x, y)
     #plt.figure(figsize=figsize)
-    #plt.plot(x, y, '-o', color='steelblue', lw=2, mfc='none', mec='orangered', ms=4)
+    #plt.plot(x, y, '-o', color='steelblue', lw=1, mfc='none', mec='orangered', ms=2)
     #plt.xlabel(xlabel)
     #plt.ylabel(ylabel)
     #if xlimits is not None:
@@ -421,8 +419,8 @@ if (rank==0):
     #relative_distance = txtfile[:,5]
     ##slope_difference = txtfile[:,8]
     #plot_line(x=time, y=relative_distance, xlabel='time (seconds)', ylabel='relative distance (nm)', 
-				#xlimits=[0, 50], ylimits=[50,200], 
-				#savefile=outputDir+'/nanorod_relative_distance.png')
+				#xlimits=[0,40], ylimits=[50,200], 
+				#savefile=outputDir+'/nanocube_relative_distance.png')
     ##plot_line(x=time, y=slope_difference,xlabel='time (seconds)', ylabel='slope_difference (degrees)', 
 				##xlimits=[0,3.5], ylimits=[0, 50], 
 				##savefile=outputDir+'/nanocube_slope_difference.png')
