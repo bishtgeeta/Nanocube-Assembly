@@ -17,11 +17,11 @@ import dataViewer
 import misc
 import tracking
 
-inputFile = r'Z:\Geeta-Share\bipyramid assembly\20170328-018-output\20170328-018.avi'
-outputFile = r'Z:\Geeta-Share\bipyramid assembly\20170328-018-output\20170328-018.h5'
-inputDir = r'Z:\Geeta-Share\bipyramid assembly\20170328-018-output'
-outputDir = r'Z:\Geeta-Share\bipyramid assembly\20170328-018-output\output'
-pixInNM = 1.09018554
+inputFile = r'Z:\Geeta-Share\rod assembly\20170228-006(1)-output\20170228-006(1).avi'
+outputFile = r'Z:\Geeta-Share\rod assembly\20170228-006(1)-output\20170228-006(1).h5'
+inputDir = r'Z:\Geeta-Share\rod assembly\20170228-006(1)-output'
+outputDir = r'Z:\Geeta-Share\rod assembly\20170228-006(1)-output\output'
+pixInNM = 1.15714713
 fps = 10
 microscope = 'JOEL2010' #'JOEL2010','T12'
 camera = 'One-view' #'Orius', 'One-view'
@@ -144,8 +144,8 @@ if (rank==0):
     #bImg = gImgProc>=myCythonFunc.threshold_kapur(gImgProc.flatten())
     #bImg = myCythonFunc.areaThreshold(bImg.astype('uint8'), areaRange=areaRange)
     
-    #bImg = imageProcess.binary_closing(bImg, iterations=4)
-    ##bImg = imageProcess.convexHull(bImg)
+    #bImg = imageProcess.binary_closing(bImg, iterations=6)
+    #bImg = imageProcess.convexHull(bImg)
     
     ##bImg = imageProcess.binary_erosion(bImg, iterations=1)
     #bImgBdry = imageProcess.normalize(imageProcess.boundary(bImg))
@@ -190,26 +190,26 @@ if (rank==0):
 #######################################################################
 # LABELLING PARTICLES
 #######################################################################
-centerDispRange = [200,200]
-perAreaChangeRange = [50,50]
-missFramesTh = 10
+#centerDispRange = [200,200]
+#perAreaChangeRange = [50,50]
+#missFramesTh = 10
     
-if (rank==0):
-    print "Labelling segmented particles"
-    fp = h5py.File(outputFile, 'r+')
-    [row,col,numFrames,frameList] = misc.getVitals(fp)
-    maxID, occurenceFrameList = tracking.labelParticles(fp, centerDispRange=centerDispRange, perAreaChangeRange=perAreaChangeRange, missFramesTh=missFramesTh, structure=structure)
-    fp.attrs['particleList'] = range(1,maxID+1)
-    numpy.savetxt(outputDir+'/frameOccurenceList.dat',numpy.column_stack((fp.attrs['particleList'],occurenceFrameList)),fmt='%d')
-    fp.flush(), fp.close()
-comm.Barrier()
+#if (rank==0):
+    #print "Labelling segmented particles"
+    #fp = h5py.File(outputFile, 'r+')
+    #[row,col,numFrames,frameList] = misc.getVitals(fp)
+    #maxID, occurenceFrameList = tracking.labelParticles(fp, centerDispRange=centerDispRange, perAreaChangeRange=perAreaChangeRange, missFramesTh=missFramesTh, structure=structure)
+    #fp.attrs['particleList'] = range(1,maxID+1)
+    #numpy.savetxt(outputDir+'/frameOccurenceList.dat',numpy.column_stack((fp.attrs['particleList'],occurenceFrameList)),fmt='%d')
+    #fp.flush(), fp.close()
+#comm.Barrier()
 
-if (rank==0):
-    print "Generating images with labelled particles"
-fp = h5py.File(outputFile, 'r')
-tracking.generateLabelImages(fp,outputDir+'/segmentation/tracking')
-fp.flush(), fp.close()
-comm.Barrier()
+#if (rank==0):
+    #print "Generating images with labelled particles"
+#fp = h5py.File(outputFile, 'r')
+#tracking.generateLabelImages(fp,outputDir+'/segmentation/tracking')
+#fp.flush(), fp.close()
+#comm.Barrier()
 #######################################################################
 
 
@@ -358,21 +358,20 @@ comm.Barrier()
 
 #######################################################################
 # FINDING OUT RELATIVE DISTANCE AND ANGLE BETWEEN PARTICLES
-#######################################################################
-
-
-#if (rank==0):
-    #print "Finding the relative distance"
-    #txtfile = numpy.loadtxt(outputDir+'/imgDataNM.dat')
-    #time = txtfile[:,0]
-    #x1 = txtfile[:,1]
-    #y1 = txtfile[:,2]
-    #x2 = txtfile[:,6]
-    #y2 = txtfile[:,7]
+########################################################################
+if (rank==0):
+    print "Finding the relative distance and angle"
+    txtfile = numpy.loadtxt(outputDir+'/imgDataNM.dat')
+    time = txtfile[:,0]
+    x1 = txtfile[:,1]
+    y1 = txtfile[:,2]
+    x2 = txtfile[:,6]
+    y2 = txtfile[:,7]
     #x3 = txtfile[:,11]
     #y3 = txtfile[:,12]
-    see_3rd_particle = np.isnan(x3)
-    #relative_distance = numpy.sqrt( (x2 - x1)**2 + (y2 - y1)**2 )
+    #see_3rd_particle = np.isnan(x3)
+    relative_distance = numpy.sqrt( (x2 - x1)**2 + (y2 - y1)**2 )
+    #txtfile[~see_3rd_particle] = 0
     slopes1 = txtfile[:,5]
     slopes2 = txtfile[:,10]
     intersection_angles = numpy.empty(x1.shape)
@@ -385,7 +384,7 @@ comm.Barrier()
 		intersection_angles[frame_num] = imageProcess.get_intersection_angle(c1, m1, c2, m2)
 		
     numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, slopes1, slopes2, intersection_angles]),fmt='%.6f')
-    #numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, ]),fmt='%.6f')
+
     
 #######################################################################
 # Plotting Graph Between Time and Relative Distance

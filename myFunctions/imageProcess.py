@@ -117,6 +117,45 @@ class FindAngleHelper(object):
         self.ax1.set_ylim([0, self.data.shape[0]])
         self.line, = self.ax1.plot([1,1], [1,1])
         
+        
+#############################################################################
+#For Automatically Calculating Angle for Rods and Bipyramids
+##############################################################################        
+        
+        
+    def get_intersection_point(center1, orientation1, center2, orientation2):
+        m1 = np.tan(orientation1)
+        m2 = np.tan(orientation2)
+        point1 = center1 + np.array([1, m1])
+        point2 = center2 + np.array([1, m2])
+    
+        da = np.array([1, m1])
+        db = np.array([1, m2])
+        dp = center1 - center2
+    
+        dap = np.array([-m1, 1])
+        denom = np.dot(dap, db)
+        num = np.dot( dap, dp)
+    
+    return num / denom.astype(float))*db + center2
+
+    
+    
+
+    def get_intersection_angle(center1, orientation1, center2, orientation2):
+    intersection_point = get_intersection_point(center1, orientation1, 
+                                                  center2, orientation2)
+
+        ray1 = intersection_point - center1
+        ray2 = intersection_point - center2
+        cos_theta = np.dot(ray1, ray2) / (np.linalg.norm(ray1) * np.linalg.norm(ray2))
+        theta = np.rad2deg(np.arccos(cos_theta))
+        sign = np.sign(np.cross(ray1, ray2))
+    
+        if theta < 0:
+            return sign * (180 + theta)
+        else:
+            return sign * theta    
 #######################################################################
 # NORMALIZE AN 8 BIT GRAYSCALE IMAGE
 #######################################################################
