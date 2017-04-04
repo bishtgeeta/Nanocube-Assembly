@@ -143,6 +143,8 @@ def get_intersection_point(center1, orientation1, center2, orientation2):
     
 
 def get_intersection_angle(center1, orientation1, center2, orientation2):
+    orientation1 = numpy.deg2rad(orientation1)
+    orientation2 = numpy.deg2rad(orientation2)
     intersection_point = get_intersection_point(center1, orientation1, 
                                                   center2, orientation2)
 
