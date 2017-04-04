@@ -377,11 +377,11 @@ if (rank==0):
     intersection_angles = numpy.empty(x1.shape)
     intersection_angles[:] = numpy.NaN
     for frame_num in range(x1.shape[0]):
-		c1 = [x1[frame_num], y1[frame_num]]
-		c2 = [x2[frame_num], y2[frame_num]]
-		m1 = slopes1[frame_num]
-		m2 = slopes2[frame_num]
-		intersection_angles[frame_num] = imageProcess.get_intersection_angle(c1, m1, c2, m2)
+        c1 = [x1[frame_num], y1[frame_num]]
+        c2 = [x2[frame_num], y2[frame_num]]
+        m1 = slopes1[frame_num]
+        m2 = slopes2[frame_num]
+        intersection_angles[frame_num] = imageProcess.get_intersection_angle(c1, m1, c2, m2)
 		
     numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, slopes1, slopes2, intersection_angles]),fmt='%.6f')
 

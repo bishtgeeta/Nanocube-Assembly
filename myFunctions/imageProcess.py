@@ -123,39 +123,39 @@ class FindAngleHelper(object):
 ##############################################################################        
         
         
-    def get_intersection_point(center1, orientation1, center2, orientation2):
-        m1 = np.tan(orientation1)
-        m2 = np.tan(orientation2)
-        point1 = center1 + np.array([1, m1])
-        point2 = center2 + np.array([1, m2])
+def get_intersection_point(center1, orientation1, center2, orientation2):
+    m1 = numpy.tan(orientation1)
+    m2 = numpy.tan(orientation2)
+    point1 = center1 + numpy.array([1, m1])
+    point2 = center2 + numpy.array([1, m2])
     
-        da = np.array([1, m1])
-        db = np.array([1, m2])
-        dp = center1 - center2
+    da = numpy.array([1, m1])
+    db = numpy.array([1, m2])
+    dp = numpy.array(center1) - numpy.array(center2)
     
-        dap = np.array([-m1, 1])
-        denom = np.dot(dap, db)
-        num = np.dot( dap, dp)
+    dap = numpy.array([-m1, 1])
+    denom = numpy.dot(dap, db)
+    num = numpy.dot( dap, dp)
     
-    return num / denom.astype(float))*db + center2
+    return (num / denom.astype(float))*db + center2
 
     
     
 
-    def get_intersection_angle(center1, orientation1, center2, orientation2):
+def get_intersection_angle(center1, orientation1, center2, orientation2):
     intersection_point = get_intersection_point(center1, orientation1, 
                                                   center2, orientation2)
 
-        ray1 = intersection_point - center1
-        ray2 = intersection_point - center2
-        cos_theta = np.dot(ray1, ray2) / (np.linalg.norm(ray1) * np.linalg.norm(ray2))
-        theta = np.rad2deg(np.arccos(cos_theta))
-        sign = np.sign(np.cross(ray1, ray2))
+    ray1 = intersection_point - center1
+    ray2 = intersection_point - center2
+    cos_theta = numpy.dot(ray1, ray2) / (numpy.linalg.norm(ray1) * numpy.linalg.norm(ray2))
+    theta = numpy.rad2deg(numpy.arccos(cos_theta))
+    sign = numpy.sign(numpy.cross(ray1, ray2))
     
-        if theta < 0:
-            return sign * (180 + theta)
-        else:
-            return sign * theta    
+    if theta < 0:
+        return sign * (180 + theta)
+    else:
+        return sign * theta    
 #######################################################################
 # NORMALIZE AN 8 BIT GRAYSCALE IMAGE
 #######################################################################
