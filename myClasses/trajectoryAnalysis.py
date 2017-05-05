@@ -167,7 +167,7 @@ class trajectoryAnalysis(object):
         print "PLOTTING TRAJECTORY OF ALL PARTICLES STARTING FROM FIRST FRAME"
         if (particleList==-1):
             particleList = self.particleList
-        fig = plt.figure(figsize=(2,2))
+        fig = plt.figure(figsize=(1.1, 1.1))
         ax= fig.add_axes([0,0,1,1])
         if (image==True):
             ax.imshow(gImg, extent=[0,self.pixInNM*self.imgCol,0,self.pixInNM*self.imgRow])
@@ -187,7 +187,7 @@ class trajectoryAnalysis(object):
         image = numpy.zeros([256,2])
         for i in range(2):
             image[:,i] = numpy.linspace(0,255,256)
-        ax2 = fig.add_axes([1.1,0.75,0.04,0.15])
+        ax2 = fig.add_axes([1.2,0.65,0.04,0.15])
         ax2.imshow(image, cmap='jet_r')
         plotFunc.set_axes_width(ax2, width=0)
         plotFunc.set_ticks_off(ax2)
@@ -195,8 +195,8 @@ class trajectoryAnalysis(object):
         ax2.set_title(str(1.0*self.row/self.fps)+' s')
         ax.set_xlabel(r'X (nm)')
         ax.set_ylabel(r'Y (nm)')
-        plt.savefig(self.outputDir+'/trajectoryCMAP.png', format='png')
-        plt.savefig(self.outputDir+'/trajectoryCMAP.pdf', format='pdf')
+        plt.savefig(self.outputDir+'/trajectoryCMAP(small).png', format='png')
+        plt.savefig(self.outputDir+'/trajectoryCMAP(small).pdf', format='pdf')
         plt.close()
     ##############################################################
     

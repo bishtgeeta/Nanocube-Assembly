@@ -17,10 +17,10 @@ import dataViewer
 import misc
 import tracking
 
-inputFile = r'Z:\Geeta-Share\rod assembly\20170228-006(1)-output\20170228-006(1).avi'
-outputFile = r'Z:\Geeta-Share\rod assembly\20170228-006(1)-output\20170228-006(1).h5'
-inputDir = r'Z:\Geeta-Share\rod assembly\20170228-006(1)-output'
-outputDir = r'Z:\Geeta-Share\rod assembly\20170228-006(1)-output\output'
+inputFile = r'Z:\Geeta-Share\rod assembly\20170228-006(4.2)-output\20170228-006(4.2).avi'
+outputFile = r'Z:\Geeta-Share\rod assembly\20170228-006(4.2)-output\20170228-006(4.2).h5'
+inputDir = r'Z:\Geeta-Share\rod assembly\20170228-006(4.2)-output'
+outputDir = r'Z:\Geeta-Share\rod assembly\20170228-006(4.2)-output\output'
 pixInNM = 1.15714713
 fps = 10
 microscope = 'JOEL2010' #'JOEL2010','T12'
@@ -190,8 +190,8 @@ if (rank==0):
 #######################################################################
 # LABELLING PARTICLES
 #######################################################################
-#centerDispRange = [200,200]
-#perAreaChangeRange = [50,50]
+#centerDispRange = [50,50]
+#perAreaChangeRange = [40,40]
 #missFramesTh = 10
     
 #if (rank==0):
@@ -215,8 +215,8 @@ if (rank==0):
 
 #######################################################################
 # REMOVING UNWANTED PARTICLES
-#######################################################################
-#keepList = [1,2,3,6]
+########################################################################
+#keepList = [1,2,3,4,9,10,12,13,14,15,16]
 #removeList = []
 
 #if (rank==0):
@@ -238,7 +238,7 @@ if (rank==0):
 #######################################################################
 # GLOBAL RELABELING OF PARTICLES
 #######################################################################
-#correctionList = [[3,1]]
+#correctionList = [[3,4],[2,3],[1,2]]
 
 #if (rank==0):
 	#print "Global relabeling of  particles"
@@ -257,7 +257,13 @@ if (rank==0):
 # FRAME-WISE CORRECTION OF PARTICLE LABELS
 #######################################################################
 #frameWiseCorrectionList = [\
-#[range(4,1223),[1,2]]\
+#[range(455,459),[4,2]],\
+#[[582],[5,2]],\
+#[range(589,591),[5,2]],\
+#[[715],[3,1]],\
+#[range(795,797),[6,2]],\
+#[range(800,802),[7,2]],\
+#[range(803,814),[6,2]]\
 #]
 
 #if (rank==0):
@@ -313,6 +319,8 @@ if (rank==0):
 
 #outFile = open(str(rank)+'.dat','wb')
 
+##particleList = [1,2]
+
 #area=True
 #perimeter=True
 #circularity=False
@@ -358,36 +366,36 @@ if (rank==0):
 
 #######################################################################
 # FINDING OUT RELATIVE DISTANCE AND ANGLE BETWEEN PARTICLES
-########################################################################
-if (rank==0):
-    print "Finding the relative distance and angle"
-    txtfile = numpy.loadtxt(outputDir+'/imgDataNM.dat')
-    time = txtfile[:,0]
-    x1 = txtfile[:,1]
-    y1 = txtfile[:,2]
-    x2 = txtfile[:,6]
-    y2 = txtfile[:,7]
+##############################################################################
+#if (rank==0):
+    #print "Finding the relative distance and angle"
+    #txtfile = numpy.loadtxt(outputDir+'/imgDataNM.dat')
+    #time = txtfile[:,0]
+    #x1 = txtfile[:,1]
+    #y1 = txtfile[:,2]
+    #x2 = txtfile[:,6]
+    #y2 = txtfile[:,7]
     #x3 = txtfile[:,11]
     #y3 = txtfile[:,12]
-    #see_3rd_particle = np.isnan(x3)
-    relative_distance = numpy.sqrt( (x2 - x1)**2 + (y2 - y1)**2 )
-    #txtfile[~see_3rd_particle] = 0
-    slopes1 = txtfile[:,5]
-    slopes2 = txtfile[:,10]
-    intersection_angles = numpy.empty(x1.shape)
-    intersection_angles[:] = numpy.NaN
-    for frame_num in range(x1.shape[0]):
-        c1 = [x1[frame_num], y1[frame_num]]
-        c2 = [x2[frame_num], y2[frame_num]]
-        m1 = slopes1[frame_num]
-        m2 = slopes2[frame_num]
-        intersection_angles[frame_num] = imageProcess.get_intersection_angle(c1, m1, c2, m2)
+    #see_3rd_particle = numpy.isnan(x3)
+    #relative_distance = numpy.sqrt( (x2 - x1)**2 + (y2 - y1)**2 )
+    #relative_distance[~see_3rd_particle] = 0
+    #slopes1 = txtfile[:,5]
+    #slopes2 = txtfile[:,10]
+    #intersection_angles = numpy.empty(x1.shape)
+    #intersection_angles[:] = numpy.NaN
+    #for frame_num in range(x1.shape[0]):
+        #c1 = [x1[frame_num], y1[frame_num]]
+        #c2 = [x2[frame_num], y2[frame_num]]
+        #m1 = slopes1[frame_num]
+        #m2 = slopes2[frame_num]
+        #intersection_angles[frame_num] = imageProcess.get_intersection_angle(c1, m1, c2, m2)
 		
-    numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, slopes1, slopes2, intersection_angles]),fmt='%.6f')
+    #numpy.savetxt(outputDir+'/relative_distance.dat', numpy.column_stack([time, x1, y1, x2, y2, relative_distance, slopes1, slopes2, intersection_angles]),fmt='%.6f')
 
     
 #######################################################################
-# Plotting Graph Between Time and Relative Distance
+# Plotting Graph Between Time and Relative Distance\Angles
 #######################################################################
 
 #def remove_nan_for_plot(x,y):
@@ -416,10 +424,10 @@ if (rank==0):
     #txtfile = numpy.loadtxt(outputDir+'/relative_distance.dat')
     #time = txtfile[:,0]
     #relative_distance = txtfile[:,5]
-    ##slope_difference = txtfile[:,8]
+    #slope_difference = txtfile[:,8]
     #plot_line(x=time, y=relative_distance, xlabel='time (seconds)', ylabel='relative distance (nm)', 
-				#xlimits=[0,40], ylimits=[50,200], 
-				#savefile=outputDir+'/nanocube_relative_distance.png')
-    ##plot_line(x=time, y=slope_difference,xlabel='time (seconds)', ylabel='slope_difference (degrees)', 
-				##xlimits=[0,3.5], ylimits=[0, 50], 
-				##savefile=outputDir+'/nanocube_slope_difference.png')
+				#xlimits=[0,20], ylimits=[-20,300], 
+				#savefile=outputDir+'/nanorod_relative_distance.png')
+    #plot_line(x=time, y=slope_difference,xlabel='time (seconds)', ylabel='slope_difference (degrees)', 
+				#xlimits=[0,20], ylimits=[-200, 200], 
+				#savefile=outputDir+'/rod_slope_difference.png')
