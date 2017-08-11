@@ -17,11 +17,11 @@ import dataViewer
 import misc
 import tracking
 
-inputFile = r'Z:\Geeta-Share\rod assembly\20170228-006(4.2)-output\20170228-006(4.2).avi'
-outputFile = r'Z:\Geeta-Share\rod assembly\20170228-006(4.2)-output\20170228-006(4.2).h5'
-inputDir = r'Z:\Geeta-Share\rod assembly\20170228-006(4.2)-output'
-outputDir = r'Z:\Geeta-Share\rod assembly\20170228-006(4.2)-output\output'
-pixInNM = 1/0.9172754
+inputFile = r'Z:\ShuFen-Share\cube assembly\For Geeta -- zipping cube assembly\20160614\001_processed dimer 2.avi'
+outputFile = r'Z:\Geeta-Share\cube assembly\Attachment Angle\20160614\001_processed dimer 2\001_processed dimer 2.h5'
+inputDir = r'Z:\ShuFen-Share\cube assembly\For Geeta -- zipping cube assembly\20160614'
+outputDir = r'Z:\Geeta-Share\cube assembly\Attachment Angle\20160614\001_processed dimer 2\output'
+pixInNM = 1.090185
 fps = 25
 microscope = 'JOEL2010' #'JOEL2010','T12'
 camera = 'One-view' #'Orius', 'One-view'
@@ -59,36 +59,36 @@ if (rank==0):
 #########
 # PART 1
 #########
-#if (rank==0):
-    #fp = fileIO.createH5(outputFile)
-    #[gImgRawStack,row,col,numFrames] = fileIO.readAVI(inputFile)
-    #frameList = range(1,numFrames+1)
-    #for frame in frameList:
-        #fileIO.writeH5Dataset(fp,'/dataProcessing/gImgRawStack/'+str(frame).zfill(zfillVal),gImgRawStack[:,:,frame-1])
+if (rank==0):
+    fp = fileIO.createH5(outputFile)
+    [gImgRawStack,row,col,numFrames] = fileIO.readAVI(inputFile)
+    frameList = range(1,numFrames+1)
+    for frame in frameList:
+        fileIO.writeH5Dataset(fp,'/dataProcessing/gImgRawStack/'+str(frame).zfill(zfillVal),gImgRawStack[:,:,frame-1])
         
-    #fp.attrs['inputFile'] = inputFile
-    #fp.attrs['outputFile'] = outputFile
-    #fp.attrs['inputDir'] = inputDir
-    #fp.attrs['outputDir'] = outputDir
-    #fp.attrs['pixInNM'] = pixInNM
-    #fp.attrs['pixInAngstrom'] = pixInNM*10
-    #fp.attrs['fps'] = fps
-    #fp.attrs['microscope'] = microscope
-    #fp.attrs['camera'] = camera
-    #fp.attrs['owner'] = owner
-    #fp.attrs['row'] = row
-    #fp.attrs['col'] = col
-    #fp.attrs['numFrames'] = numFrames
-    #fp.attrs['frameList'] = range(1,numFrames+1)
-    #fp.attrs['zfillVal'] = zfillVal
+    fp.attrs['inputFile'] = inputFile
+    fp.attrs['outputFile'] = outputFile
+    fp.attrs['inputDir'] = inputDir
+    fp.attrs['outputDir'] = outputDir
+    fp.attrs['pixInNM'] = pixInNM
+    fp.attrs['pixInAngstrom'] = pixInNM*10
+    fp.attrs['fps'] = fps
+    fp.attrs['microscope'] = microscope
+    fp.attrs['camera'] = camera
+    fp.attrs['owner'] = owner
+    fp.attrs['row'] = row
+    fp.attrs['col'] = col
+    fp.attrs['numFrames'] = numFrames
+    fp.attrs['frameList'] = range(1,numFrames+1)
+    fp.attrs['zfillVal'] = zfillVal
     
-    #fileIO.mkdirs(outputDir)
-    #fileIO.saveImageSequence(gImgRawStack,outputDir+'/dataProcessing/gImgRawStack')
+    fileIO.mkdirs(outputDir)
+    fileIO.saveImageSequence(gImgRawStack,outputDir+'/dataProcessing/gImgRawStack')
     
-    #del gImgRawStack
-    #fp.flush(), fp.close()
-    #gc.collect()
-#comm.Barrier()
+    del gImgRawStack
+    fp.flush(), fp.close()
+    gc.collect()
+comm.Barrier()
 
 #########
 # PART 2
@@ -143,11 +143,7 @@ if (rank==0):
     #gImgProc = fp['/dataProcessing/processedStack/'+str(frame).zfill(zfillVal)].value
     #bImg = gImgProc>=myCythonFunc.threshold_kapur(gImgProc.flatten())
     #bImg = myCythonFunc.areaThreshold(bImg.astype('uint8'), areaRange=areaRange)
-    
-    #bImg = imageProcess.binary_closing(bImg, iterations=6)
-    #bImg = imageProcess.convexHull(bImg)
-    
-    ##bImg = imageProcess.binary_erosion(bImg, iterations=1)
+    #bImg = imageProcess.binary_erosion(bImg, iterations=1)
     #bImgBdry = imageProcess.normalize(imageProcess.boundary(bImg))
     #finalImage = numpy.column_stack((numpy.maximum(gImgNorm,bImgBdry), gImgNorm))
     #cv2.imwrite(outputDir+'/segmentation/result/'+str(frame).zfill(zfillVal)+'.png', finalImage)
