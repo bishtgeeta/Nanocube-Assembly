@@ -17,12 +17,12 @@ import dataViewer
 import misc
 import tracking
 
-frameList = [600, 960, 1012, 1020, 1070, 1100, 1130, 1355, 1390, 1660]
+frameList = range(9)
 zfillVal = 6
-outputFile = r'C:\Users\deorani\Desktop\output\file.h5'
-inputDir = r'C:\Users\deorani\Desktop\data'
-outputDir = r'C:\Users\deorani\Desktop\output'
-pixInNM = 1.15714713
+outputFile = r'C:\Users\dbsgbis\Desktop\Output\file.h5'
+inputDir = r'C:\Users\dbsgbis\Desktop\Data'
+outputDir = r'C:\Users\dbsgbis\Desktop\Output'
+pixInNM = 1.09018555
 fps = 10
 microscope = 'JOEL2010' #'JOEL2010','T12'
 camera = 'One-view' #'Orius', 'One-view'
@@ -60,9 +60,10 @@ if (rank==0):
 if (rank==0):
     fp = fileIO.createH5(outputFile)
     [gImgRawStack,row,col,numFrames] = fileIO.readImageSequence(inputDir,frameList,zfillVal,extension='png')
-    frameList = range(1,numFrames+1)
+    
     for frame in frameList:
         fileIO.writeH5Dataset(fp,'/dataProcessing/gImgSegmented/'+str(frame).zfill(zfillVal),gImgRawStack[:,:,frame-1])
+        fileIO.writeH5Dataset(fp,'/dataProcessing/gImgRawStack/'+str(frame).zfill(zfillVal),gImgRawStack[:,:,frame-1])
         
     fp.attrs['outputFile'] = outputFile
     fp.attrs['inputDir'] = inputDir
@@ -76,9 +77,10 @@ if (rank==0):
     fp.attrs['row'] = row
     fp.attrs['col'] = col
     fp.attrs['numFrames'] = numFrames
-    fp.attrs['frameList'] = range(1,numFrames+1)
+    fp.attrs['frameList'] = frameList
     fp.attrs['zfillVal'] = zfillVal
-     
+    
+    fileIO.mkdirs(outputDir)
     del gImgRawStack
     fp.flush(), fp.close()
     gc.collect()
