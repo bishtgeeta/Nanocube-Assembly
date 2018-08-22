@@ -19,9 +19,9 @@ import tracking
 
 frameList = [600, 960, 1012, 1020, 1070, 1100, 1130, 1355, 1390, 1660]
 zfillVal = 6
-outputFile = r'Z:\Geeta-Share\rod assembly\20170228-006(4.2)-output\20170228-006(4.2).h5'
-inputDir = r'Z:\Geeta-Share\rod assembly\20170228-006(4.2)-output'
-outputDir = r'Z:\Geeta-Share\rod assembly\20170228-006(4.2)-output\output'
+outputFile = r'C:\Users\deorani\Desktop\output\file.h5'
+inputDir = r'C:\Users\deorani\Desktop\data'
+outputDir = r'C:\Users\deorani\Desktop\output'
 pixInNM = 1.15714713
 fps = 10
 microscope = 'JOEL2010' #'JOEL2010','T12'
